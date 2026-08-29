@@ -5089,9 +5089,7 @@ body.is-tempest-mode {
     -20px 0 60px rgba(0, 0, 0, 0.6),
     -1px 0 0 rgba(243, 191, 62, 0.08) inset;
   color: #f5e6c4;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   /* 面板内部的装饰：左上柔光 */
 }
 .me-panel.active { transform: translateX(0); }
@@ -5757,4 +5755,22 @@ body.is-tempest-mode {
 .ai-settings-info a:hover {
   opacity: .8;
   text-decoration: underline;
+}
+
+
+/* ⚡ 我的面板：专用滚动区 — 头部固定不滚，内容滚 */
+.me-panel__scroll {
+  flex: 1 1 auto;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;     /* iOS 惯性滚 */
+  overscroll-behavior: contain;           /* 避免触底连滚 body */
+  min-height: 0;                          /* flex 子强制不超出父 */
+  padding-bottom: 8px;
+}
+/* 防 flex 布局里 section 被压缩 */
+.me-panel__scroll > section,
+.me-panel__scroll > nav {
+  flex: 0 0 auto;
+  min-height: 0;
 }
