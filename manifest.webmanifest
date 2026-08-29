@@ -1,0 +1,23 @@
+{
+  "name": "Aurum · 编程网课殿堂",
+  "short_name": "Aurum",
+  "description": "精选 32 种编程语言免费精品公开课（Harvard/MIT/Stanford/freeCodeCamp），内置沉浸式淬炼 IDE、分级习题库、AI 随时答疑。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1420",
+  "theme_color": "#1d2e47",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["education", "developer", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "练习工坊", "short_name": "工坊", "url": "./index.html#practice" },
+    { "name": "习题库",   "short_name": "题库", "url": "./index.html#problemBank" },
+    { "name": "淬炼模式", "short_name": "淬炼", "url": "./index.html#tempest" }
+  ]
+}

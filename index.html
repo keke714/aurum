@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 告诉手机浏览器：本页永远不要缓存 HTML (手机最容易卡 HTML) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!--
+    📱 手机自动拿新版，不用按任何快捷键：
+    1) 每个 CSS/JS 链接后面都带了 ?v=MD5指纹
+    2) 只要源文件改过，MD5 指纹就变，URL 也就变了
+    3) 手机浏览器看到是新 URL，就绝对不会再用旧缓存
+    4) 服务器端 (serve.py) 也设置了 HTML 永远 no-cache
+  -->
+  <!-- 本地主题 CSS (MD5 指纹戳，代码一改→MD5变→URL变→手机浏览器自动下载新版) -->
+  <link rel="stylesheet" href="css/style.css?v=20260829r">
+  <!-- CodeMirror 代码编辑器 (CDN 自带版本号 5.65.16) -->
+  <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="lib/codemirror/theme/dracula.min.css">
+  <script src="lib/codemirror/lib/codemirror.min.js"></script>
+  <script src="lib/codemirror/addon/mode/simple.min.js"></script>
+  <script src="lib/codemirror/mode/python/python.min.js"></script>
+  <script src="lib/codemirror/mode/javascript/javascript.min.js"></script>
+  <script src="lib/codemirror/mode/clike/clike.min.js"></script>
+  <script src="lib/codemirror/mode/go/go.min.js"></script>
+  <script src="lib/codemirror/mode/rust/rust.min.js"></script>
+  <script src="lib/codemirror/mode/swift/swift.min.js"></script>
+  <script src="lib/codemirror/mode/sql/sql.min.js"></script>
+  <script src="lib/codemirror/mode/ruby/ruby.min.js"></script>
+  <script src="lib/codemirror/mode/php/php.min.js"></script>
+  <script src="lib/codemirror/mode/shell/shell.min.js"></script>
+  <script src="lib/codemirror/mode/perl/perl.min.js"></script>
+  <script src="lib/codemirror/mode/powershell/powershell.min.js"></script>
+  <script src="lib/codemirror/mode/lua/lua.min.js"></script>
+  <script src="lib/codemirror/mode/scheme/scheme.min.js"></script>
+  <script src="lib/codemirror/mode/commonlisp/commonlisp.min.js"></script>
+  <script src="lib/codemirror/mode/pascal/pascal.min.js"></script>
+  <script src="lib/codemirror/mode/asn.1/asn.1.min.js"></script>
+  <script src="lib/codemirror/mode/vb/vb.min.js"></script>
+  <script src="lib/codemirror/mode/fortran/fortran.min.js"></script>
+  <script src="lib/codemirror/addon/edit/closebrackets.min.js"></script>
+  <script src="lib/codemirror/addon/edit/matchbrackets.min.js"></script>
+  <script src="lib/codemirror/addon/edit/matchtags.min.js"></script>
+  <script src="lib/codemirror/addon/hint/show-hint.min.js"></script>
+
+  <!-- ═══ PWA / SEO / Favicon ═══ -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="theme-color" content="#0d1420">
+
+  <title>Aurum · 编程网课殿堂 | 免费精品公开课 + AI 随时答疑</title>
+  <meta name="description" content="精选 32 种编程语言的免费精品公开课（Harvard / MIT / Stanford / freeCodeCamp / Coursera…），内置沉浸式淬炼 IDE、分级习题库、AI 随时答疑。">
+  <meta name="keywords" content="编程学习,Python,JavaScript,免费公开课,Harvard CS50,AI 助教,在线编程,淬炼 IDE">
+  <meta name="author" content="Aurum">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0d1420">
+
+  <!-- Open Graph (微信 / 微博 / Telegram 分享预览) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Aurum · 编程网课殿堂">
+  <meta property="og:description" content="精选 32 种语言免费精品公开课 + 沉浸式淬炼 IDE + AI 随时答疑。">
+  <meta property="og:image" content="icons/icon-512.png">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Aurum · 编程网课殿堂">
+  <meta name="twitter:description" content="精选 32 种语言免费精品公开课 + 沉浸式淬炼 IDE + AI 随时答疑。">
+  <meta name="twitter:image" content="icons/icon-512.png">
+
+  <!-- Register Service Worker (离线兜底 + 可安装) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <div class="logo" onclick="navigateTo('home')">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">AURUM</span>
+    </div>
+    <nav class="nav-menu">
+      <button class="nav-btn active" data-page="home" onclick="navigateTo('home')">课程殿堂</button>
+      <button class="nav-btn" data-page="practice" onclick="navigateTo('practice')">练习工坊</button>
+      <button class="nav-btn nav-btn-problembank" data-page="practice" onclick="navigateTo('problemBank')">📚 习题库</button>
+    </nav>
+    <div class="user-info">
+      <button class="me-entry" id="meEntry" onclick="openMePanel()" aria-label="我的">
+        <span class="me-entry__avatar">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+          </svg>
+        </span>
+        <span class="me-entry__label">我的</span>
+        <span class="me-entry__chevron">‹</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main id="mainContent">
+    <!-- 首页: 课程殿堂 (网课为主) -->
+    <section id="homePage" class="page active">
+      <div class="hero">
+        <div class="sand-ribbon"></div>
+        <h1>Aurum · 编程网课殿堂</h1>
+        <p>精选全球名校免费精品公开课（Harvard / MIT / Stanford / freeCodeCamp …），共 32 门语言，百余课时。网课为主，AI 为辅，听不懂随时问。</p>
+        <div class="search-box">
+          <input type="text" id="langSearch" placeholder="搜索课程、语言、讲师或平台关键词…" oninput="filterLanguages()">
+        </div>
+      </div>
+
+      <!-- 🔥 精选网课推荐 · 用户一进来就看到网课在哪 -->
+      <section id="featuredCourses"></section>
+
+      <div class="lang-categories" id="langCategories"></div>
+    </section>
+
+    <!-- 练习工坊页面 -->
+    <section id="practicePage" class="page">
+      <div class="page-header">
+        <h2>⚒ 练习工坊</h2>
+        <p>自由代码沙盒 + 分级习题库，边学边练，让代码真正成为你的肌肉记忆</p>
+      </div>
+      <div class="workshop-layout">
+        <div class="workshop-left">
+          <div class="sidebar-section">
+            <div class="sidebar-title">语言选择</div>
+            <div id="workshopLangSelectWrap" class="workshop-lang-select-wrap">
+              <!-- JS 动态注入高级感 language chip 按钮 -->
+            </div>
+          </div>
+          <div id="workshopEditorWrap" class="workshop-editor-wrap">
+            <!-- 高级感工具栏：统一 SVG line icon + 分组布局 -->
+            <div id="workshopToolbar" class="workshop-toolbar">
+              <!-- 主操作：运行（高亮） -->
+              <button class="tb-btn tb-btn--primary" id="workshopRunBtn" title="运行代码 (Ctrl+↵)">
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3.5L16 10 5.5 16.5z"/><path d="M5.5 3.5v13"/></svg>
+                <span>运行</span>
+              </button>
+
+              <span class="tb-divider" aria-hidden="true"></span>
+
+              <!-- 二级操作组 -->
+              <button class="tb-btn" id="workshopClearBtn" title="清空编辑器">
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5H15.5"/><path d="M8 5.5V4.2C8 3.54 8.54 3 9.2 3h1.6C11.46 3 12 3.54 12 4.2V5.5"/><path d="M6.2 5.5l.8 10.3c0 .66.54 1.2 1.2 1.2h3.6c.66 0 1.2-.54 1.2-1.2l.8-10.3"/></svg>
+                <span>清空</span>
+              </button>
+              <button class="tb-btn" id="workshopSaveBtn" title="保存草稿 (Ctrl+S)">
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.2C3.5 3.54 4.04 3 4.7 3H14.6L17 5.4v10.4c0 .66-.54 1.2-1.2 1.2H4.7c-.66 0-1.2-.54-1.2-1.2V4.2z"/><path d="M5.5 3v4.5h9V3"/><path d="M6.5 16.5V11h7v5.5"/></svg>
+                <span>保存草稿</span>
+              </button>
+              <button class="tb-btn" id="workshopDownloadBtn" title="下载代码文件">
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5v9"/><path d="M6.5 9L10 12.5 13.5 9"/><path d="M4.2 16.5h11.6"/></svg>
+                <span>下载代码</span>
+              </button>
+
+              <span class="tb-spacer" aria-hidden="true"></span>
+
+              <!-- ★ 淬炼模式：金光环绕按钮，点击进入沉浸式全屏 IDE 风格编辑器 -->
+              <button class="tb-btn tb-btn--tempest" id="workshopTempestBtn"
+                      title="淬炼 · 进入沉浸式编码 IDE 模式">
+                <span class="tempest-halo" aria-hidden="true">
+                  <span class="tempest-halo__spark tempest-halo__spark--1"></span>
+                  <span class="tempest-halo__spark tempest-halo__spark--2"></span>
+                  <span class="tempest-halo__spark tempest-halo__spark--3"></span>
+                  <span class="tempest-halo__spark tempest-halo__spark--4"></span>
+                </span>
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.6 3.2L7.4 10.5H3.6l6.4-6.7-1.4-1.1c1.8-2.1 4.8-1.7 5.6 0h-1.6z"/>
+                  <path d="M7.4 16.8l5.2-7.3h3.8l-6.4 6.7 1.4 1.1c-1.8 2.1-4.8 1.7-5.6 0h1.6z"/>
+                </svg>
+                <span>淬炼</span>
+              </button>
+
+              <!-- 次级行动：问 AI（琥珀语义） -->
+              <button class="tb-btn tb-btn--accent" id="workshopAskAIBtn" title="就当前代码询问 AI">
+                <svg class="tb-ic" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.2a5.8 5.8 0 0 0-5.8 5.8c0 1.6.6 2.6 1.3 3.5L4.5 15.5l3.2-1a5.9 5.9 0 0 0 2.3.5h.0A5.8 5.8 0 0 0 15.8 9 5.8 5.8 0 0 0 10 3.2z"/><path d="M8 8.2h.01M12 8.2h.01"/></svg>
+                <span>问 AI</span>
+              </button>
+            </div>
+
+            <!-- 编辑器容器 -->
+            <div id="workshopEditorContainer" class="workshop-editor-container"></div>
+
+            <!-- editor / output 之间可拖拽分栏 -->
+            <div id="workshopSplitter" class="workshop-splitter" aria-label="拖拽调整编辑器与输出区比例">
+              <span class="workshop-splitter__bar"></span>
+              <span class="workshop-splitter__dot"></span>
+              <span class="workshop-splitter__dot"></span>
+              <span class="workshop-splitter__dot"></span>
+              <span class="workshop-splitter__bar"></span>
+            </div>
+
+            <!-- 运行结果输出区 + 最大化按钮 -->
+            <div id="workshopOutputWrap" class="workshop-output-wrap">
+              <header class="workshop-output__hd" id="workshopOutputHd">
+                <div class="workshop-output__title">
+                  <span class="workshop-output__dot workshop-output__dot--run" aria-hidden="true"></span>
+                  <span class="workshop-output__dot workshop-output__dot--ok" aria-hidden="true"></span>
+                  <span class="workshop-output__dot workshop-output__dot--err" aria-hidden="true"></span>
+                  <h6>终端输出</h6>
+                </div>
+                <div class="workshop-output__actions">
+                  <button type="button" class="out-btn" id="workshopOutputCopy" title="复制输出">
+                    <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="6.5" width="10" height="10" rx="2"/><path d="M4.5 13.5V4.2A1.7 1.7 0 0 1 6.2 2.5h9.3"/></svg>
+                  </button>
+                  <button type="button" class="out-btn" id="workshopOutputClear" title="清空输出">
+                    <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h11"/><path d="M6.5 5.5L7 16.1c0 .6.5 1.1 1.1 1.1h3.8c.6 0 1.1-.5 1.1-1.1L13.5 5.5"/></svg>
+                  </button>
+                  <button type="button" class="out-btn out-btn--toggle" id="workshopOutputMax" title="输出区最大化 / 全屏切换">
+                    <svg class="out-ic out-ic--max" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5V4.2c0-.7.6-1.2 1.2-1.2H7"/><path d="M16.5 7.5V4.2c0-.7-.6-1.2-1.2-1.2H13"/><path d="M3.5 12.5v3.3c0 .7.6 1.2 1.2 1.2H7"/><path d="M16.5 12.5v3.3c0 .7-.6 1.2-1.2 1.2H13"/></svg>
+                    <svg class="out-ic out-ic--min" viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9H7.6c.7 0 1.2-.5 1.2-1.2V4.2"/><path d="M16 9h-3.6c-.7 0-1.2-.5-1.2-1.2V4.2"/><path d="M4 11h3.6c.7 0 1.2.5 1.2 1.2v3.6"/><path d="M16 11h-3.6c-.7 0-1.2.5-1.2 1.2v3.6"/></svg>
+                  </button>
+                </div>
+              </header>
+              <div id="workshopOutput" class="workshop-output">代码运行结果将显示在这里...</div>
+            </div>
+          </div>
+        </div>
+        <div class="workshop-center">
+          <div id="workshopProblemPanel" class="workshop-problem-panel">
+            <div class="problem-tabs">
+              <button class="problem-tab-item active" data-level="basic">基础</button>
+              <button class="problem-tab-item" data-level="intermediate">进阶</button>
+              <button class="problem-tab-item" data-level="master">大师</button>
+            </div>
+            <div id="workshopProblemList" class="workshop-problem-list">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI 教室页面 (已迁移至全局 AI 浮窗，保留空壳避免旧代码引用报错) -->
+    <section id="classroomPage" class="page classroom-hidden">
+    </section>
+
+    <!-- 课程观看页 (由课程卡片进入) -->
+    <section id="coursePage" class="page">
+      <div id="courseContent"></div>
+    </section>
+  </main>
+
+  <!-- 语言详情弹窗 -->
+  <div id="langModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeLangModal()">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- 全局 AI 浮窗 -->
+  <div id="aiFloatContainer">
+    <button id="aiLauncher" title="召唤 AI 助手">
+      <span class="ai-launcher-icon">✨</span>
+    </button>
+    <div id="aiFloatWidget" class="ai-float-widget hidden">
+      <div id="aiFloatHeader" class="ai-float-header">
+        <div class="ai-float-title">
+          <span class="ai-float-title-icon">❖</span>
+          <span>AI 学习助手</span>
+        </div>
+        <div class="ai-float-header-actions">
+          <button class="ai-header-btn" id="aiNewSessionBtn" title="新会话">＋ 新会话</button>
+          <button class="ai-header-btn" id="aiHistoryBtn" title="历史会话">☰ 历史会话</button>
+          <button class="ai-header-btn" id="aiMinimizeBtn" title="最小化">—</button>
+          <button class="ai-header-btn" id="aiCloseBtn" title="关闭">×</button>
+        </div>
+      </div>
+      <div class="ai-float-body">
+        <div id="aiSessionList" class="ai-session-list hidden">
+          <div class="ai-session-list-header">
+            <button class="btn btn-sm btn-primary w-full" id="aiNewSessionSideBtn">＋ 新会话</button>
+          </div>
+          <div class="ai-session-items" id="aiSessionItems">
+          </div>
+        </div>
+        <div id="aiFloatChat" class="ai-float-chat">
+          <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="chat-msg ai">
+              <div class="chat-avatar"><span class="aurum-ai-avatar" title="AI 学习助手"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><defs><linearGradient id="aurum-g-index" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="50%" stop-color="#d4af37"/><stop offset="100%" stop-color="#b8860b"/></linearGradient></defs><g stroke="url(#aurum-g-index)" stroke-width="1.2" fill="none" opacity="0.85"><line x1="12" y1="12" x2="24" y2="24"/><line x1="36" y1="12" x2="24" y2="24"/><line x1="12" y1="36" x2="24" y2="24"/><line x1="36" y1="36" x2="24" y2="24"/><line x1="24" y1="6" x2="24" y2="24"/><line x1="24" y1="42" x2="24" y2="24"/><line x1="6" y1="24" x2="24" y2="24"/><line x1="42" y1="24" x2="24" y2="24"/></g><g fill="url(#aurum-g-index)"><circle cx="12" cy="12" r="2.2"/><circle cx="36" cy="12" r="2.2"/><circle cx="12" cy="36" r="2.2"/><circle cx="36" cy="36" r="2.2"/><circle cx="24" cy="6" r="2.2"/><circle cx="24" cy="42" r="2.2"/><circle cx="6" cy="24" r="2.2"/><circle cx="42" cy="24" r="2.2"/><circle cx="24" cy="24" r="3.2"/></g></svg></span></div>
+              <div class="chat-bubble">你好！我是 Aurum AI 学习助手。有任何编程问题、语法疑问或算法困惑，随时问我吧！</div>
+            </div>
+          </div>
+          <div class="ai-chat-input-area">
+            <div class="quick-questions">
+              <button class="quick-q">解释这段代码</button>
+              <button class="quick-q">帮我 Debug</button>
+              <button class="quick-q">给个示例</button>
+              <button class="quick-q">知识点讲解</button>
+            </div>
+            <div class="chat-input-row">
+              <textarea class="chat-input" id="aiChatInput" placeholder="输入问题，向 AI 老师请教...（回车发送，Shift+回车换行）"></textarea>
+              <button class="btn btn-primary" id="aiChatSendBtn">发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="aiFloatResize" class="ai-float-resize" title="拖拽调整大小"></div>
+    </div>
+  </div>
+
+  <!-- 全局脚本 (顺序有依赖)
+       每个脚本后面带 ?v=MD5 指纹戳：代码改了→MD5 变→URL 变→手机必下新版
+       没改的话 URL 不变→浏览器安心缓存，速度飞快
+       新增：workshop.js（练习工坊三栏交互）、aifloat.js（全局 AI 召唤浮窗·多会话·可拖拽·可 resize）
+  -->
+  <script src="js/languages.js?v=20260829k"></script>
+  <script src="js/teacher.js?v=aa73b97474"></script>
+  <script src="js/exercises.js?v=210b0b4959"></script>
+  <script src="js/courses.js?v=903b2d58e6"></script>
+  <script src="js/app.js?v=20260829r"></script>
+  <script src="js/practice.js?v=20260829k"></script>
+  <script src="js/classroom.js?v=a1c95ba970"></script>
+  <script src="js/workshop.js?v=20260829n&cb=W"></script>
+  <script src="js/workshop-fx.js?v=20260829k"></script>
+  <script src="js/aifloat.js?v=2d497cf441"></script>
+  <!-- ════════════════ 个人中心侧抽屉 ════════════════ -->
+  <div class="me-mask" id="meMask" onclick="closeMePanel()"></div>
+
+  <aside class="me-panel" id="mePanel" role="dialog" aria-label="我的">
+    <button class="me-panel__close" onclick="closeMePanel()" aria-label="关闭">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- 头部：头像 + 昵称 + 称号 -->
+    <header class="me-header">
+      <div class="me-avatar me-avatar--editable" onclick="document.getElementById('avatarInput').click()" title="点击更换头像">
+        <div class="me-avatar__ring"></div>
+        <svg class="me-avatar__default" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#5a2e0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4.5"/>
+          <path d="M4.5 20.5c0-4.4 3.4-8 7.5-8s7.5 3.6 7.5 8"/>
+        </svg>
+        <img class="me-avatar__img" id="meAvatarImg" alt="头像" style="display:none"/>
+        <span class="me-avatar__status"></span>
+        <span class="me-avatar__edit-hint">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </span>
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+      <div class="me-name">淬炼学徒</div>
+      <div class="me-title">NOVICE · LVL 1</div>
+    </header>
+
+    <div class="me-divider"></div>
+
+    <!-- 4 宫格统计 -->
+    <section class="me-stats">
+      <div class="me-stat">
+        <svg class="me-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <div class="me-stat__value" id="meStreak">0</div>
+        <div class="me-stat__label">连续天数</div>
+      </div>
+      <div class="me-stat">
+        <svg class="me-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div class="me-stat__value" id="mePoints">0</div>
+        <div class="me-stat__label">累计积分</div>
+      </div>
+      <div class="me-stat">
+        <svg class="me-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <div class="me-stat__value" id="meCourses">0</div>
+        <div class="me-stat__label">完成课程</div>
+      </div>
+      <div class="me-stat">
+        <svg class="me-stat__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div class="me-stat__value" id="meExercises">0</div>
+        <div class="me-stat__label">完成练习</div>
+      </div>
+    </section>
+
+    <!-- 成就徽章 · 数据驱动 -->
+    <section class="me-achievements">
+      <div class="me-section-title">成就徽章</div>
+      <div class="me-ach-summary" id="meAchSummary">0 / 0 已解锁</div>
+      <div class="me-ach-list" id="meAchievementsList"></div>
+    </section>
+
+    <!-- 菜单项 -->
+    <nav class="me-menu">
+      <div class="me-menu-item" onclick="showToast('学习记录 · 开发中')">
+        <span class="me-menu-item__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span class="me-menu-item__text">学习记录</span>
+        <span class="me-menu-item__arrow">›</span>
+      </div>
+      <div class="me-menu-item" onclick="showToast('我的收藏 · 开发中')">
+        <span class="me-menu-item__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <span class="me-menu-item__text">我的收藏</span>
+        <span class="me-menu-item__arrow">›</span>
+      </div>
+      <div class="me-menu-item" onclick="showToast('AI 对话历史 · 开发中')">
+        <span class="me-menu-item__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <span class="me-menu-item__text">AI 对话历史</span>
+        <span class="me-menu-item__arrow">›</span>
+      </div>
+      <div class="me-menu-item" onclick="showToast('设置 · 开发中')">
+        <span class="me-menu-item__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="me-menu-item__text">设置</span>
+        <span class="me-menu-item__arrow">›</span>
+      </div>
+      <div class="me-menu-item" onclick="if(confirm('确认重置所有学习数据？')){localStorage.clear();location.reload();}">
+        <span class="me-menu-item__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+        </span>
+        <span class="me-menu-item__text">重置学习数据</span>
+        <span class="me-menu-item__arrow">›</span>
+      </div>
+    </nav>
+
+    <footer class="me-footer">AURUM · v1.0 · 淬炼学徒</footer>
+  </aside>
+
+</body>
+</html>
