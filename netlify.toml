@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+  command = "echo 'static'"
+
+# 清理 SPA fallback（虽然不是 SPA，但保险）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Service Worker 允许在根作用域注册
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Cache-Control = "public, max-age=0, must-revalidate"
