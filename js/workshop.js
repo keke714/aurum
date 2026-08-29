@@ -258,7 +258,7 @@ function askWorkshopAI() {
   }
 }
 
-function initWorkshopEditor() {
+async function initWorkshopEditor() {
   const container = document.getElementById('workshopEditorContainer');
   if (!container) return;
 
@@ -276,7 +276,11 @@ function initWorkshopEditor() {
 
   container.innerHTML = `<textarea id="workshopCodeEditor">${escapeHtml(initialCode)}</textarea>`;
 
-  const mode = lang ? getCodeMirrorMode(lang.id) : 'text/plain';
+  // ⚡ 懒加载: 确保当前语言的 CodeMirror mode 脚本已就绪
+  const langId = lang ? lang.id : null;
+  await ensureCodeMirrorModes(langId);
+
+  const mode = langId ? getCodeMirrorMode(langId) : 'text/plain';
   workshopEditor = CodeMirror.fromTextArea(document.getElementById('workshopCodeEditor'), {
     mode: mode,
     theme: 'dracula',
@@ -918,7 +922,7 @@ function renderWorkshopLangSelect() {
   }
 }
 
-function renderWorkshop() {
+async function renderWorkshop() {
   if (!AppState.selectedLanguage) {
     const pyLang = getLanguageById('python');
     if (pyLang) AppState.selectedLanguage = pyLang;

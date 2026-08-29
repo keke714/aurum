@@ -146,7 +146,7 @@ function renderExerciseDetail() {
 }
 
 // 初始化练习编辑器
-function initPracticeEditor() {
+async function initPracticeEditor() {
   const container = document.getElementById('editorContainer');
   if (!container) return;
   
@@ -162,6 +162,9 @@ function initPracticeEditor() {
   const initialCode = savedCode || lang.codeTemplate;
   
   container.innerHTML = `<textarea id="practiceCodeEditor">${escapeHtml(initialCode)}</textarea>`;
+  
+  // ⚡ 懒加载: 确保当前语言的 CodeMirror mode 已就绪
+  await ensureCodeMirrorModes(lang.id);
   
   const mode = getEditorMode(lang.id);
   practiceEditor = CodeMirror.fromTextArea(document.getElementById('practiceCodeEditor'), {

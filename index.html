@@ -14,36 +14,24 @@
     3) 手机浏览器看到是新 URL，就绝对不会再用旧缓存
     4) 服务器端 (serve.py) 也设置了 HTML 永远 no-cache
   -->
-  <!-- 本地主题 CSS (MD5 指纹戳，代码一改→MD5变→URL变→手机浏览器自动下载新版) -->
-  <link rel="stylesheet" href="css/style.css?v=20260829r">
-  <!-- CodeMirror 代码编辑器 (CDN 自带版本号 5.65.16) -->
+  <!-- ⚡ 性能: 预连接 CDN -->
+  <link rel="preconnect" href="https://keke714.github.io" crossorigin>
+  <link rel="dns-prefetch" href="https://keke714.github.io">
+
+  <!-- 本地主题 CSS (MD5 指纹戳) -->
+  <link rel="stylesheet" href="css/style.css?v=20260829t">
+  <link rel="preload" as="style" href="css/style.css?v=20260829t">
+
+  <!-- CodeMirror: 只加载核心 + simple 依赖 (mode 全部懒加载) -->
   <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="lib/codemirror/theme/dracula.min.css">
-  <script src="lib/codemirror/lib/codemirror.min.js"></script>
-  <script src="lib/codemirror/addon/mode/simple.min.js"></script>
-  <script src="lib/codemirror/mode/python/python.min.js"></script>
-  <script src="lib/codemirror/mode/javascript/javascript.min.js"></script>
-  <script src="lib/codemirror/mode/clike/clike.min.js"></script>
-  <script src="lib/codemirror/mode/go/go.min.js"></script>
-  <script src="lib/codemirror/mode/rust/rust.min.js"></script>
-  <script src="lib/codemirror/mode/swift/swift.min.js"></script>
-  <script src="lib/codemirror/mode/sql/sql.min.js"></script>
-  <script src="lib/codemirror/mode/ruby/ruby.min.js"></script>
-  <script src="lib/codemirror/mode/php/php.min.js"></script>
-  <script src="lib/codemirror/mode/shell/shell.min.js"></script>
-  <script src="lib/codemirror/mode/perl/perl.min.js"></script>
-  <script src="lib/codemirror/mode/powershell/powershell.min.js"></script>
-  <script src="lib/codemirror/mode/lua/lua.min.js"></script>
-  <script src="lib/codemirror/mode/scheme/scheme.min.js"></script>
-  <script src="lib/codemirror/mode/commonlisp/commonlisp.min.js"></script>
-  <script src="lib/codemirror/mode/pascal/pascal.min.js"></script>
-  <script src="lib/codemirror/mode/asn.1/asn.1.min.js"></script>
-  <script src="lib/codemirror/mode/vb/vb.min.js"></script>
-  <script src="lib/codemirror/mode/fortran/fortran.min.js"></script>
-  <script src="lib/codemirror/addon/edit/closebrackets.min.js"></script>
-  <script src="lib/codemirror/addon/edit/matchbrackets.min.js"></script>
-  <script src="lib/codemirror/addon/edit/matchtags.min.js"></script>
-  <script src="lib/codemirror/addon/hint/show-hint.min.js"></script>
+  <script defer src="lib/codemirror/lib/codemirror.min.js"></script>
+  <script defer src="lib/codemirror/addon/mode/simple.min.js"></script>
+  <script defer src="lib/codemirror/addon/edit/closebrackets.min.js"></script>
+  <script defer src="lib/codemirror/addon/edit/matchbrackets.min.js"></script>
+  <script defer src="lib/codemirror/addon/edit/matchtags.min.js"></script>
+  <script defer src="lib/codemirror/addon/hint/show-hint.min.js"></script>
+  <!-- ⚠️ 所有 17 个 CodeMirror mode 已移到懒加载函数 loadCodeMirrorMode() 中 -->
 
   <!-- ═══ PWA / SEO / Favicon ═══ -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -317,16 +305,16 @@
        没改的话 URL 不变→浏览器安心缓存，速度飞快
        新增：workshop.js（练习工坊三栏交互）、aifloat.js（全局 AI 召唤浮窗·多会话·可拖拽·可 resize）
   -->
-  <script src="js/languages.js?v=20260829k"></script>
-  <script src="js/teacher.js?v=aa73b97474"></script>
-  <script src="js/exercises.js?v=210b0b4959"></script>
-  <script src="js/courses.js?v=903b2d58e6"></script>
-  <script src="js/app.js?v=20260829r"></script>
-  <script src="js/practice.js?v=20260829k"></script>
-  <script src="js/classroom.js?v=a1c95ba970"></script>
-  <script src="js/workshop.js?v=20260829n&cb=W"></script>
-  <script src="js/workshop-fx.js?v=20260829k"></script>
-  <script src="js/aifloat.js?v=2d497cf441"></script>
+  <script defer src="js/languages.js?v=20260829k"></script>
+  <script defer src="js/teacher.js?v=aa73b97474"></script>
+  <script defer src="js/exercises.js?v=210b0b4959"></script>
+  <script defer src="js/courses.js?v=903b2d58e6"></script>
+  <script defer src="js/app.js?v=20260829r"></script>
+  <script defer src="js/practice.js?v=20260829k"></script>
+  <script defer src="js/classroom.js?v=a1c95ba970"></script>
+  <script defer src="js/workshop.js?v=20260829n&cb=W"></script>
+  <script defer src="js/workshop-fx.js?v=20260829k"></script>
+  <script defer src="js/aifloat.js?v=2d497cf441"></script>
   <!-- ════════════════ 个人中心侧抽屉 ════════════════ -->
   <div class="me-mask" id="meMask" onclick="closeMePanel()"></div>
 

@@ -1,3 +1,52 @@
+// ===== CodeMirror 懒加载 (只在用户打开编辑器时才加载对应 language mode) =====
+(function() {
+  const _loadedCM = new Set();
+  const CM_MODE_FILES = {
+    python:     ['lib/codemirror/mode/python/python.min.js'],
+    javascript: ['lib/codemirror/mode/javascript/javascript.min.js'],
+    typescript: ['lib/codemirror/mode/javascript/javascript.min.js'],
+    java:       ['lib/codemirror/mode/clike/clike.min.js'],
+    c:          ['lib/codemirror/mode/clike/clike.min.js'],
+    cpp:        ['lib/codemirror/mode/clike/clike.min.js'],
+    csharp:     ['lib/codemirror/mode/clike/clike.min.js'],
+    kotlin:     ['lib/codemirror/mode/clike/clike.min.js'],
+    go:         ['lib/codemirror/mode/go/go.min.js'],
+    rust:       ['lib/codemirror/mode/rust/rust.min.js'],
+    swift:      ['lib/codemirror/mode/swift/swift.min.js'],
+    php:        ['lib/codemirror/mode/php/php.min.js'],
+    ruby:       ['lib/codemirror/mode/ruby/ruby.min.js'],
+    perl:       ['lib/codemirror/mode/perl/perl.min.js'],
+    shell:      ['lib/codemirror/mode/shell/shell.min.js'],
+    powershell: ['lib/codemirror/mode/powershell/powershell.min.js'],
+    sql:        ['lib/codemirror/mode/sql/sql.min.js'],
+    vbnet:      ['lib/codemirror/mode/vb/vb.min.js'],
+    delphi:     ['lib/codemirror/mode/pascal/pascal.min.js'],
+    pascal:     ['lib/codemirror/mode/pascal/pascal.min.js'],
+    fortran:    ['lib/codemirror/mode/fortran/fortran.min.js'],
+    lisp:       ['lib/codemirror/mode/commonlisp/commonlisp.min.js'],
+    scheme:     ['lib/codemirror/mode/scheme/scheme.min.js'],
+  };
+  function _loadOne(url) {
+    return new Promise((resolve) => {
+      if (_loadedCM.has(url)) return resolve();
+      const existing = document.querySelector('script[data-cm-src="' + url + '"]');
+      if (existing && existing.dataset.cmLoaded === '1') return resolve();
+      const s = document.createElement('script');
+      s.src = url;
+      s.async = true;
+      s.setAttribute('data-cm-src', url);
+      s.onload = () => { _loadedCM.add(url); s.dataset.cmLoaded = '1'; resolve(); };
+      s.onerror = () => resolve(); // 404 也不阻塞
+      document.head.appendChild(s);
+    });
+  }
+  window.ensureCodeMirrorModes = function(langId) {
+    const files = CM_MODE_FILES[langId];
+    if (!files) return Promise.resolve();
+    return Promise.all(files.map(_loadOne));
+  };
+})();
+
 // ===== 全局状态管理 =====
 const AppState = {
   currentPage: 'home',
