@@ -194,12 +194,12 @@ function sendChat() {
   chatBox.scrollTop = chatBox.scrollHeight;
   
   // AI 老师回复
-  setTimeout(() => {
+  setTimeout(async () => {
     const typingEl = document.getElementById('typingIndicator');
     if (typingEl) typingEl.remove();
-    const response = generateTeacherResponse(text);
+    const response = await generateTeacherResponse(text);
     addTeacherMessage(response);
-  }, 800 + Math.random() * 600);
+  }, 300 + Math.random() * 400);
 }
 
 // 预设问题按钮
@@ -217,12 +217,12 @@ function askQuestion(q) {
   `;
   chatBox.appendChild(typing);
   chatBox.scrollTop = chatBox.scrollHeight;
-  setTimeout(() => {
+  setTimeout(async () => {
     const typingEl = document.getElementById('typingIndicator');
     if (typingEl) typingEl.remove();
-    const response = generateTeacherResponse(q);
+    const response = await generateTeacherResponse(q);
     addTeacherMessage(response);
-  }, 800 + Math.random() * 600);
+  }, 300 + Math.random() * 400);
 }
 
 // ===== 老师讲解各主题 =====
@@ -460,8 +460,130 @@ function analyzeExample(lang, ex) {
   return '- 这段代码展示了 ' + title + ' 的典型实现\n- 关注语法结构和关键 API 的使用\n- 试着运行并修改参数观察结果';
 }
 
+
+// ===== SiliconFlow 真 AI 封装 (国内可用, 免费注册) =====
+async function _askAIReal(prompt) {
+  const apiKey = localStorage.getItem('aurum_siliconflow_key');
+  if (!apiKey) return null;  // 没配置 API key → fallback 规则
+  
+  const lang = typeof classroomState !== 'undefined' && classroomState.langId 
+    ? getLanguageById(classroomState.langId) : { name: '编程', extension: 'py' };
+  
+  const systemPrompt = `你是 Aurum 编程学习平台的 AI 助教。
+当前正在学习的语言：${lang.name || '编程'}。
+请用中文回答，风格亲切专业：
+- 先用一句话总结核心观点
+- 关键代码用 \`\`\`${lang.extension || 'python'}\`\`\` 代码块
+- 解释要易懂，假设用户是初学者
+- 适当给学习建议和常见陷阱
+- 如果涉及代码运行结果，说明预期输出`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);  // 15秒超时
+    
+    const resp = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: 'deepseek-ai/deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        stream: false,
+        temperature: 0.7,
+        max_tokens: 2048
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    return content || null;
+  } catch (e) {
+    console.warn('[AI] SiliconFlow 调用失败:', e.message);
+    return null;
+  }
+}
+
+// ===== AI 设置入口 =====
+function openAISettings() {
+  const existing = document.getElementById('aiSettingsModal');
+  if (existing) { existing.classList.add('active'); return; }
+  
+  const currentKey = localStorage.getItem('aurum_siliconflow_key') || '';
+  const maskedKey = currentKey ? currentKey.slice(0, 6) + '***' + currentKey.slice(-4) : '';
+  
+  const modal = document.createElement('div');
+  modal.id = 'aiSettingsModal';
+  modal.className = 'ai-settings-modal';
+  modal.innerHTML = `
+    <div class="ai-settings-mask" onclick="document.getElementById('aiSettingsModal').remove()"></div>
+    <div class="ai-settings-panel">
+      <div class="ai-settings-hdr">
+        <div class="ai-settings-title">✦ AI 设置</div>
+        <button class="ai-settings-close" onclick="document.getElementById('aiSettingsModal').remove()">×</button>
+      </div>
+      <div class="ai-settings-body">
+        <div class="ai-settings-info">
+          <div style="font-size:14px;font-weight:600;color:#e8dfc6;margin-bottom:8px">🔑 配置你的 AI API Key</div>
+          <div style="font-size:12px;color:#888;line-height:1.7;margin-bottom:16px">
+            Aurum AI 助教可以连接真实的大模型 (DeepSeek Chat) 来回答你的编程问题。<br>
+            完全免费 · 注册即送额度 · 国内可访问
+          </div>
+          <div style="font-size:12px;color:#aaa;margin-bottom:16px">
+            👉 获取步骤：<br>
+            1. 打开 <a href="https://siliconflow.cn/zh-cn" target="_blank" style="color:#d4af37">siliconflow.cn</a> 注册<br>
+            2. 控制台 → API Keys → 创建<br>
+            3. 复制 Key 粘贴到下方
+          </div>
+        </div>
+        <div class="ai-settings-input-wrap">
+          <input type="password" id="aiSettingsKey" placeholder="sk-xxxxxxxxxxxxxxxx" value="${currentKey ? currentKey.replace(/./g, '•') : ''}">
+          <button type="button" id="aiSettingsToggle" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password';this.textContent=this.previousElementSibling.type==='password'?'👁️':'🙈'">👁️</button>
+        </div>
+        ${currentKey ? `<div style="font-size:11px;color:#6b8;float:right;margin-top:4px">✓ 已配置 ${maskedKey}</div>` : ''}
+        <div style="clear:both"></div>
+        <div class="ai-settings-actions">
+          <button class="btn btn-sm" onclick="document.getElementById('aiSettingsModal').remove()">取消</button>
+          <button class="btn btn-primary" onclick="_saveAISettings()">保存</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  // 动画进场
+  requestAnimationFrame(() => modal.classList.add('active'));
+}
+
+function _saveAISettings() {
+  const input = document.getElementById('aiSettingsKey');
+  const raw = input.value.trim();
+  // 如果全是 bullet (用户没改), 就跳过
+  if (!raw || /^[•]+$/.test(raw)) {
+    showToast('⚠️ 请输入 API Key');
+    return;
+  }
+  // 简单校验: SiliconFlow key 一般是 sk- 开头或纯 hash
+  if (raw.length < 10) {
+    showToast('⚠️ Key 格式不对，检查 SiliconFlow 控制台');
+    return;
+  }
+  localStorage.setItem('aurum_siliconflow_key', raw);
+  showToast('✅ AI 设置已保存！试试问 AI 一个编程问题');
+  document.getElementById('aiSettingsModal').remove();
+}
+
+window.openAISettings = openAISettings;
+
 // ===== 生成 AI 老师回复 =====
-function generateTeacherResponse(userText) {
+async function generateTeacherResponse(userText) {
   const lang = getLanguageById(classroomState.langId);
   const knowledge = getTeacherKnowledge(classroomState.langId);
   const q = userText.toLowerCase();

@@ -293,10 +293,14 @@
     }
     appendUserMessage(sendText);
     const typingEl = showThinkingAnimation();
-    const delay = 800 + Math.floor(Math.random() * 601);
-    setTimeout(() => {
-      removeThinkingAnimation();
-      const response = callGenerateResponse(sendText);
+    // 如果没配置 API key, 加速规则回复 (400ms fake delay)
+    const hasKey = !!localStorage.getItem('aurum_siliconflow_key');
+    const delay = hasKey ? 0 : (400 + Math.floor(Math.random() * 301));
+    setTimeout(async () => {
+      // 有真实 AI 时, loading 动画一直显示直到 API 返回
+      if (!hasKey) removeThinkingAnimation();
+      const response = await callGenerateResponse(sendText);
+      if (hasKey) removeThinkingAnimation();
       appendAiMessage(response);
     }, delay);
   }

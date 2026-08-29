@@ -5613,3 +5613,146 @@ body.is-tempest-mode {
   animation: meAvatarPulse 3.6s ease-in-out infinite;
 }
 
+
+/* ═══════════════════════════════════════════════
+   AI 设置弹窗 + YouTube fallback
+   ═══════════════════════════════════════════════ */
+
+.ai-settings-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.ai-settings-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.ai-settings-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 15, 25, 0.75);
+  backdrop-filter: blur(4px);
+}
+.ai-settings-panel {
+  position: relative;
+  width: min(420px, 92vw);
+  background: linear-gradient(160deg, #1a2332 0%, #0d1420 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,55,0.08);
+  overflow: hidden;
+  transform: translateY(10px) scale(0.98);
+  transition: transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.ai-settings-modal.active .ai-settings-panel {
+  transform: translateY(0) scale(1);
+}
+.ai-settings-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+}
+.ai-settings-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e8dfc6;
+  letter-spacing: .5px;
+}
+.ai-settings-close {
+  background: none;
+  border: none;
+  color: #8892a4;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all .15s;
+}
+.ai-settings-close:hover {
+  color: #e8dfc6;
+  background: rgba(255,255,255,0.06);
+}
+.ai-settings-body {
+  padding: 20px;
+}
+.ai-settings-info {
+  margin-bottom: 16px;
+}
+.ai-settings-info a {
+  text-decoration: none;
+}
+.ai-settings-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.ai-settings-input-wrap:focus-within {
+  border-color: rgba(212,175,55,0.6);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+}
+.ai-settings-input-wrap input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #e8dfc6;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  padding: 12px 14px;
+}
+.ai-settings-input-wrap input::placeholder {
+  color: #5a6478;
+}
+.ai-settings-input-wrap button {
+  background: none;
+  border: none;
+  color: #8892a4;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 16px;
+}
+.ai-settings-input-wrap button:hover {
+  color: #d4af37;
+}
+.ai-settings-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.ai-settings-actions .btn {
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* YouTube fallback 加载覆盖层 */
+.yt-loader {
+  background: radial-gradient(ellipse at center, rgba(13,20,32,0.92) 0%, rgba(13,20,32,0.85) 100%);
+  backdrop-filter: blur(2px);
+}
+.yt-loader > div {
+  animation: fadeIn .4s ease;
+}
+
+/* 链接样式 (AI 设置里的 siliconflow) */
+.ai-settings-info a {
+  transition: opacity .15s;
+}
+.ai-settings-info a:hover {
+  opacity: .8;
+  text-decoration: underline;
+}

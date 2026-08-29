@@ -149,7 +149,7 @@
     for (var i = 0; i < particles.length; i++) {
       particles[i].update(dt);
     }
-    drawConnections();
+    // drawConnections();  // 砍掉 O(n²) 连线 (性能杀手)
     for (var j = 0; j < particles.length; j++) {
       particles[j].draw();
     }
@@ -172,7 +172,15 @@
     var targetCount = isMobile
       ? Math.floor((W * H) / 22000)
       : Math.floor((W * H) / 9000);
-    targetCount = Math.max(20, Math.min(targetCount, 120));
+    // ⚡ 性能优化: 大幅降低粒子数 (mobile max 12, desktop max 40)
+    var _reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (_reduceMotion) {
+      targetCount = 0;  // 用户明确要求减少动画
+    } else if (isMobile) {
+      targetCount = Math.max(8, Math.min(targetCount, 12));
+    } else {
+      targetCount = Math.max(15, Math.min(targetCount, 40));
+    }
 
     while (particles.length < targetCount) particles.push(new Particle());
     if (particles.length > targetCount) particles.length = targetCount;

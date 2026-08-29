@@ -466,15 +466,62 @@ function renderCourseStage(lang, course, chapterId) {
   let stageHTML = '';
   if (course.provider === 'youtube') {
     const startSec = chapter.t ? Math.max(0, chapter.t) : 0;
+    const ytDirect = `https://www.youtube.com/watch?v=${course.videoId}&t=${startSec}s`;
+    const ytEmbedUrl = `https://www.youtube.com/embed/${course.videoId}?start=${startSec}&rel=0&modestbranding=1`;
+    const invidiousUrl = `https://invidious.fdn.fr/embed?v=${course.videoId}&start=${startSec}`;
     stageHTML = `
-      <div class="video-stage">
+      <div class="video-stage" style="position:relative">
+        <div class="yt-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(13,20,32,0.85);z-index:10;transition:opacity .4s">
+          <div style="text-align:center">
+            <div style="font-size:28px;margin-bottom:8px">⏳</div>
+            <div style="color:#e8dfc6;font-size:14px">视频加载中...</div>
+            <div style="color:#888;font-size:12px;margin-top:4px">YouTube 可能需要几秒加载</div>
+          </div>
+        </div>
+        <div class="yt-fallback" style="display:none;position:absolute;inset:0;background:rgba(13,20,32,0.97);z-index:11;align-items:center;justify-content:center;padding:24px;text-align:center">
+          <div style="max-width:360px">
+            <div style="font-size:40px;margin-bottom:12px">🌐</div>
+            <div style="color:#e8dfc6;font-size:16px;font-weight:600;margin-bottom:8px">YouTube 无法在你的网络环境下访问</div>
+            <div style="color:#888;font-size:13px;margin-bottom:20px;line-height:1.6">Aurum 中的视频来自 YouTube，部分网络环境下可能无法加载。你可以：</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <a class="btn btn-primary" href="${ytDirect}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">🚀 在 YouTube 官方打开</a>
+              <a class="btn btn-sm" href="${invidiousUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">🔒 试试 Invidious 镜像</a>
+              <button class="btn btn-sm" onclick="this.closest('.video-stage').querySelector('iframe').src='${invidiousUrl}';this.closest('.video-stage').querySelector('.yt-fallback').style.display='none';">🔄 重试加载镜像</button>
+            </div>
+            <div style="color:#555;font-size:11px;margin-top:16px">${course.platform} · ${escapeHtml(course.title)}</div>
+          </div>
+        </div>
         <iframe
-          src="https://www.youtube.com/embed/${course.videoId}?start=${startSec}&rel=0&modestbranding=1"
+          src="${ytEmbedUrl}"
+          data-video-id="${course.videoId}"
           title="${escapeHtml(course.title)} · ${escapeHtml(chapter.title)}"
           loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen></iframe>
+          allowfullscreen
+          onload="var st=this.closest('.video-stage');setTimeout(function(){if(this.contentDocument||this.contentWindow){var h=st.querySelector('.yt-loader');if(h)h.style.opacity='0';setTimeout(function(){h.style.display='none'},400)}},500);var fb=st.querySelector('.yt-fallback');setTimeout(function(){if(!st.dataset.ytOk){fb.style.display='flex';st.querySelector('.yt-loader').style.display='none'}},8000)"></iframe>
       </div>
+      <script>
+        // YouTube iframe 加载检测
+        (function(){
+          setTimeout(function(){
+            var st = document.querySelector('.video-stage');
+            if(!st) return;
+            var iframe = st.querySelector('iframe');
+            var loader = st.querySelector('.yt-loader');
+            var fb = st.querySelector('.yt-fallback');
+            if(iframe && iframe.contentDocument){
+              // 加载成功
+              st.dataset.ytOk = '1';
+              if(loader){ loader.style.opacity='0'; setTimeout(function(){loader.style.display='none'},400); }
+            } else if(fb) {
+              // 8 秒后 iframe 还没内容 → 显示 fallback
+              st.dataset.ytOk = '0';
+              fb.style.display = 'flex';
+              if(loader) loader.style.display='none';
+            }
+          }, 8000);
+        })();
+      </script>
     `;
   } else {
     stageHTML = `
@@ -747,9 +794,9 @@ function sendCourseChat() {
 
   showCourseTyping(lang, course, chapter);
 
-  // 模拟 AI 思考
-  setTimeout(() => {
-    const reply = generateContextualAnswer(lang, course, chapter, text);
+  // AI 思考
+  setTimeout(async () => {
+    const reply = await generateContextualAnswer(lang, course, chapter, text);
     window.courseChatState[key].messages.push({ role: 'ai', text: reply });
     renderCourseChatMessages(lang, course, chapter);
   }, 900 + Math.random() * 600);
@@ -800,7 +847,7 @@ function showCourseTyping(lang, course, chapter) {
 }
 
 // 上下文感知的 AI 回答生成
-function generateContextualAnswer(lang, course, chapter, userText) {
+async function generateContextualAnswer(lang, course, chapter, userText) {
   const q = userText.toLowerCase();
   const chapterCtx = `你正在学习 **${course.title}**（讲师：${course.instructor}，${course.platform}）
 当前章节：**${chapter ? chapter.title : ''}**
@@ -815,7 +862,7 @@ function generateContextualAnswer(lang, course, chapter, userText) {
   try {
     // 让 classroom.js 的通用生成函数作为核心
     if (typeof generateTeacherResponse === 'function') {
-      base = generateTeacherResponse(userText);
+      base = await generateTeacherResponse(userText);
     }
   } catch (e) { base = ''; }
 
